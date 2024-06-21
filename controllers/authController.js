@@ -33,10 +33,7 @@ export const RegisterUser = async (req, res) => {
       password: req.body.password,
     });
 
-    return res.status(201).json({
-      message: "register success",
-      data: createUser,
-    });
+    createSendToken(createUser, 201, res);
   } catch (error) {
     return res.status(400).json({
       message: "error",
