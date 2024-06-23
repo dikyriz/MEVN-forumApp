@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import asyncHandler from "../middleware/asyncHandler.js";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -25,25 +26,33 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-export const RegisterUser = async (req, res) => {
-  try {
-    const createUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-    });
+export const RegisterUser = asyncHandler(async (req, res) => {
+  const createUser = await User.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+  });
 
-    createSendToken(createUser, 201, res);
-  } catch (error) {
-    return res.status(400).json({
-      message: "error",
-      error,
-    });
+  createSendToken(createUser, 201, res);
+});
+export const LoginUser = asyncHandler(async (req, res) => {
+  //validasi email dan password tidak boleh kosong
+  if (!req.body.email && !req.body.password) {
+    res.status(400);
+    throw new Error("inputan email dan password tidak boleh kosong");
   }
-};
-export const LoginUser = (req, res) => {
-  res.send("login success");
-};
+  //validasi email sudah terdaftar pada database
+  const userData = await User.findOne({
+    email: req.body.email,
+  });
+
+  if (userData && (await userData.comparePassword(req.body.password))) {
+    createSendToken(userData, 200, res);
+  } else {
+    res.status(400);
+    throw new Error("invalid user");
+  }
+});
 export const LogoutUser = (req, res) => {
   res.send("logout success");
 };
