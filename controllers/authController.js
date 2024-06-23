@@ -27,14 +27,20 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const RegisterUser = asyncHandler(async (req, res) => {
+  const isFirstAccount = (await User.countDocuments()) === 0;
+
+  const role = isFirstAccount ? "admin" : "user";
+
   const createUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    role,
   });
 
   createSendToken(createUser, 201, res);
 });
+
 export const LoginUser = asyncHandler(async (req, res) => {
   //validasi email dan password tidak boleh kosong
   if (!req.body.email && !req.body.password) {
@@ -53,9 +59,29 @@ export const LoginUser = asyncHandler(async (req, res) => {
     throw new Error("invalid user");
   }
 });
+
 export const LogoutUser = (req, res) => {
-  res.send("logout success");
+  res.cookie("jwt", "", {
+    expire: new Date(0),
+    httpOnly: true,
+    security: false,
+  });
+
+  res.status(200).json({
+    message: "logout success",
+  });
 };
-export const getUser = (req, res) => {
-  res.send("get user success");
+
+export const getUser = async (req, res) => {
+  const user = await User.findById(req.user.id).select({ password: 0 });
+
+  if (user) {
+    return res.status(200).json({
+      user,
+    });
+  }
+
+  return res.status(401).json({
+    message: "user tidak ditemukan",
+  });
 };
