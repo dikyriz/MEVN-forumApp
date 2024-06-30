@@ -1,20 +1,15 @@
 <template>
-  <h1>{{ dataM?.message }}</h1>
+  <Header />
 </template>
 
 <script setup>
-import axios from "axios";
-import { ref, onMounted } from "vue";
-
-const dataM = ref(null);
+import Header from "@/layouts/Header.vue";
+import { onMounted } from "vue";
+import customFetch from "./api";
 
 const getData = async () => {
-  try {
-    const { data } = await axios.get("http://localhost:3000/");
-    dataM.value = data;
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await customFetch.get("/test");
+  console.log(res);
 };
 
 onMounted(() => {
