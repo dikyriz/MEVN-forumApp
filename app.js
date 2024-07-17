@@ -2,7 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+
+//router
 import authRouter from "./router/authRouter.js";
+import questionRouter from "./router/questionRouter.js";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { errorHandler, notFound } from "./middleware/ErrorHandler.js";
@@ -21,15 +24,9 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-//endpoint
-app.get("/api/v1/test", (req, res) => {
-  res.status(200).json({
-    message: "backend",
-  });
-});
-
 //parent router
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/question", questionRouter);
 
 app.use(notFound);
 app.use(errorHandler);
