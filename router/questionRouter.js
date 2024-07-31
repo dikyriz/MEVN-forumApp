@@ -22,10 +22,10 @@ router.get("/:id", DetailQuestion);
 
 //update document
 //put /api/v1/question/:id
-router.put("/:id", UpdateQuestion);
+router.put("/:id", authMiddleware, UpdateQuestion);
 
 //delete document
 //delete /api/v1/question/:id
-router.delete("/:id", DeleteQuestion);
+router.delete("/:id", authMiddleware, DeleteQuestion);
 
 export default router;
