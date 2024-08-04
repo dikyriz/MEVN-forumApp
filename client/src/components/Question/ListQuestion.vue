@@ -17,23 +17,28 @@
         >
           <div class="flex align-items-center gap-2">
             <Button icon="pi pi-thumbs-up-fill" rounded text></Button>
+            <span>{{ props.data.countVote }}</span>
           </div>
-          <span class="p-text-secondary">Updated 2 hours ago</span>
+          <span class="p-text-secondary">{{
+            dateFormat(props.data.createdAt)
+          }}</span>
         </div>
       </template>
-      <RouterLink to="/" class="text-4xl text-primary no-underline"
-        >judul</RouterLink
+      <template #icons>
+        <button class="p-panel-header-icon p-link mr-2" @click="toggle">
+          <span class="pi pi-cog"></span>
+        </button>
+        <Menu ref="menu" id="config_menu" :model="items" popup />
+      </template>
+      <RouterLink
+        :to="{ name: 'DetailQuestion', params: { id: props.data._id } }"
+        class="text-4xl text-primary no-underline"
+        >{{ props.data.title }}</RouterLink
       >
       <p class="my-3">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum.
+        <span v-html="props.data.question.substring(0, 200)"></span>
       </p>
-      <Chip label="Javascript" />
+      <Chip :label="props.data.category" />
     </Panel>
   </div>
 </template>
@@ -42,4 +47,55 @@
 import Panel from "primevue/panel";
 import Avatar from "primevue/avatar";
 import Chip from "primevue/chip";
+import Menu from "primevue/menu";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const menu = ref(null);
+const toggle = (event) => {
+  menu.value.toggle(event);
+};
+
+const items = ref([
+  {
+    label: "Update",
+    icon: "pi pi-refresh",
+    command: () => {
+      const data = props.data;
+      console.log(data);
+    },
+  },
+  {
+    label: "Delete",
+    icon: "pi pi-times",
+    command: () => {
+      console.log("delete");
+    },
+  },
+
+  {
+    separator: true,
+  },
+  {
+    label: "Report",
+    icon: "pi pi-flag",
+    command: () => {
+      console.log("report");
+    },
+  },
+]);
+
+const dateFormat = (dateinput) => {
+  const newDate = new Date(dateinput).toLocaleString();
+
+  return newDate;
+};
+
+const props = defineProps({
+  data: {
+    type: Object,
+    required: true,
+  },
+});
 </script>

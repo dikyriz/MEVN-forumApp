@@ -74,6 +74,7 @@ const handleSubmit = async () => {
     if (QuestionData) {
       clearInput();
       emit("close");
+      emit("reload");
     }
   } catch (error) {
     errorAlert.value = true;

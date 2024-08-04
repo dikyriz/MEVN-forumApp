@@ -11,6 +11,7 @@
           <div class="flex justify-content-between align-items-center">
             <h2 class="text-4xl text-primary">List Question</h2>
             <Button
+              v-if="authStore.currentUser"
               label="Tambah"
               rounded
               type="button"
@@ -25,13 +26,16 @@
             header="Create Question"
             :style="{ width: '70%' }"
           >
-            <FormQuestion @close="closeDialog()" />
+            <FormQuestion @close="closeDialog()" @reload="allQuestion()" />
           </Dialog>
 
-          <ListQuestion />
-          <ListQuestion />
-          <ListQuestion />
-          <ListQuestion />
+          <ListQuestion
+            v-if="questions"
+            v-for="q in questions"
+            :key="q.id"
+            :data="q"
+          />
+          <LoadingSpinner v-else />
         </div>
       </section>
     </div>
@@ -42,11 +46,30 @@
 import ListQuestion from "@/components/Question/ListQuestion.vue";
 import Dialog from "primevue/dialog";
 import FormQuestion from "@/components/Question/FormQuestion.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import customFetch from "@/api";
+import { useAuthStore } from "@/stores/authStores";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
+const questions = ref(null);
 const dialog = ref(false);
+const authStore = useAuthStore();
+
+const allQuestion = async () => {
+  try {
+    const { data } = await customFetch.get("/question");
+    console.log(data.data);
+    questions.value = data.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const closeDialog = () => {
   dialog.value = false;
 };
+
+onMounted(() => {
+  allQuestion();
+});
 </script>
