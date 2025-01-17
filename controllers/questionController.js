@@ -29,6 +29,16 @@ export const QuestionsAll = asyncHandler(async (req, res) => {
 
     let query = Question.find(queryObject);
 
+    // console.info(req);
+    //sort by field
+    if(req.query.sort){
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    //pagination
     const page = req.query.page * 1 || 1;
     const limitData = 5;
     const skipData = (page -1) * limitData;
