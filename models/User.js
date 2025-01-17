@@ -27,6 +27,15 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin"],
     default: "user",
   },
+}, {
+  toJSON: { virtuals: true }, toObject: { virtuals: true }
+});
+
+userSchema.virtual('listQuestion', {
+  ref: 'Question',
+  localField: '_id',
+  foreignField: 'userId',
+  justOne: false
 });
 
 userSchema.methods.comparePassword = async function (reqPassword) {

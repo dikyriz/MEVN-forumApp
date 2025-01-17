@@ -73,7 +73,7 @@ export const LogoutUser = (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-  const user = await User.findById(req.user.id).select({ password: 0 });
+  const user = await User.findById(req.user.id).select({ password: 0 }).populate('listQuestion');
 
   if (user) {
     return res.status(200).json({

@@ -27,7 +27,7 @@ export const QuestionsAll = asyncHandler(async (req, res) => {
 
     // console.info(req.query, queryObject);
 
-    let query = Question.find(queryObject);
+    let query = Question.find(queryObject).populate("userId", "-password");
 
     // console.info(req);
     //sort by field
@@ -62,7 +62,7 @@ export const QuestionsAll = asyncHandler(async (req, res) => {
 export const DetailQuestion = asyncHandler(async (req, res) => {
   const idParams = req.params.id;
 
-  const idQuestion = await Question.findById(idParams);
+  const idQuestion = await Question.findById(idParams).populate("userId", "-password");
 
   if (!idQuestion) {
     return res.status(404).json({
