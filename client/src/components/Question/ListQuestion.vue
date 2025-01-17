@@ -24,7 +24,7 @@
           }}</span>
         </div>
       </template>
-      <template #icons>
+      <template #icons v-if="authStore.currentUser && authStore.currentUser._id == props.data.userId">
         <button class="p-panel-header-icon p-link mr-2" @click="toggle">
           <span class="pi pi-cog"></span>
         </button>
@@ -38,6 +38,19 @@
       <p class="my-3">
         <span v-html="props.data.question.substring(0, 200)"></span>
       </p>
+      <Dialog
+        v-model:visible="dialog"
+        modal
+        header="Update Question"
+        :style="{ width: '70%' }"
+      >
+        <FormQuestion
+          @close="dialog = false"
+          :dataQuestion="dataQuestion"
+          :isUpdate="true"
+          @reload="reload()"
+        />
+      </Dialog>
       <Chip :label="props.data.category" />
     </Panel>
   </div>
@@ -48,13 +61,27 @@ import Panel from "primevue/panel";
 import Avatar from "primevue/avatar";
 import Chip from "primevue/chip";
 import Menu from "primevue/menu";
+import Dialog from "primevue/dialog";
+import FormQuestion from "./FormQuestion.vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import {useAuthStore} from "@/stores/authStores.js";
+import customFetch from "@/api.js";
 
+
+const dialog = ref(false);
+const dataQuestion = ref(null);
 const router = useRouter();
 const menu = ref(null);
 const toggle = (event) => {
   menu.value.toggle(event);
+};
+
+const emit = defineEmits(["reload"]);
+const authStore = useAuthStore();
+
+const reload = () => {
+  emit("reload");
 };
 
 const items = ref([
@@ -63,14 +90,18 @@ const items = ref([
     icon: "pi pi-refresh",
     command: () => {
       const data = props.data;
-      console.log(data);
+      dataQuestion.value = data;
+      dialog.value = true;
+      // console.log(data);
     },
   },
   {
     label: "Delete",
     icon: "pi pi-times",
-    command: () => {
-      console.log("delete");
+    command: async () => {
+      await customFetch.delete(`question/${props.data._id}`);
+      alert("Delete Success");
+      emit("reload");
     },
   },
 

@@ -14,10 +14,10 @@
     </div>
     <div class="flex align-items-center gap-3 mb-5">
       <Editor
+        v-model="question.question"
         editorStyle="height: 320px"
         style="width: 100%"
         placeholder="Insert Your Question"
-        v-model="question.question"
       />
     </div>
     <div class="flex align-items-center gap-3 mb-5">
@@ -41,11 +41,34 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import customFetch from "@/api";
 import AlertMessage from "../AlertMessage.vue";
+import Editor from 'primevue/editor';
 
-const emit = defineEmits(["close"]);
+
+const props = defineProps({
+  dataQuestion: {
+    type: Object,
+    required: true,
+  },
+  isUpdate: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+
+onMounted(() => {
+  if (props.dataQuestion && props.isUpdate) {
+    console.log(props.dataQuestion);
+    question.title = props.dataQuestion.title;
+    question.question = props.dataQuestion.question;
+    question.category = props.dataQuestion.category;
+  }
+});
+
+const emit = defineEmits(["close", "reload"]);
 
 //state alert
 const errorAlert = ref(false);
@@ -65,17 +88,25 @@ const clearInput = () => {
 
 const handleSubmit = async () => {
   try {
-    const QuestionData = await customFetch.post("/question", {
-      title: question.title,
-      question: question.question,
-      category: question.category,
-    });
-
-    if (QuestionData) {
-      clearInput();
-      emit("close");
-      emit("reload");
+    if (props.isUpdate) {
+      //update data
+      await customFetch.put(`/question/${props.dataQuestion._id}`, {
+        title: question.title,
+        question: question.question,
+        category: question.category,
+      });
+    } else {
+      //tambah data
+      await customFetch.post("/question", {
+        title: question.title,
+        question: question.question,
+        category: question.category,
+      });
     }
+
+    clearInput();
+    emit("close");
+    emit("reload");
   } catch (error) {
     errorAlert.value = true;
     errorMsg.value = error.response.data.message;
