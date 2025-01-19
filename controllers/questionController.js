@@ -1,6 +1,7 @@
 import Question from "../models/Question.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { checkPermission } from "../middleware/checkPermission.js";
+import {populate} from "dotenv";
 
 export const CreateQuestion = asyncHandler(async (req, res) => {
   const { title, question, category } = req.body;
@@ -65,7 +66,8 @@ export const QuestionsAll = asyncHandler(async (req, res) => {
 export const DetailQuestion = asyncHandler(async (req, res) => {
   const idParams = req.params.id;
 
-  const idQuestion = await Question.findById(idParams).populate("userId", "-password");
+  const idQuestion = await Question.findById(idParams).populate("userId", "-password").populate({path:"listAnswer",
+    populate:({ path: "user", select: "-password"})});
 
   if (!idQuestion) {
     return res.status(404).json({

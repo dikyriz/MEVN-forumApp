@@ -28,8 +28,17 @@ const questionSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals:true},
+    toObject: { virtuals:true}
   }
 );
+
+questionSchema.virtual("listAnswer", {
+    ref: 'Answer',
+    localField: '_id',
+    foreignField: 'question',
+    justOne: false
+})
 
 const Question = mongoose.model("Question", questionSchema);
 
