@@ -54,9 +54,12 @@ export const QuestionsAll = asyncHandler(async (req, res) => {
 
     const QuestionData = await query;
 
+    const countQuestion = await Question.countDocuments(queryObject);
+
   return res.status(200).json({
     message: "data berhasil ditampilkan",
     data: QuestionData,
+    total: countQuestion,
   });
 });
 export const DetailQuestion = asyncHandler(async (req, res) => {
