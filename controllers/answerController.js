@@ -1,6 +1,7 @@
 import Answer from "../models/Answer.js";
 import Question from "../models/Question.js";
 import asyncHandler from "../middleware/asyncHandler.js";
+import {checkPermission} from "../middleware/checkPermission.js";
 
 export const addAnswer = asyncHandler(async (req, res) => {
     const questionId = req.params.idQuestion;
@@ -22,4 +23,19 @@ export const addAnswer = asyncHandler(async (req, res) => {
         status: "success",
         data: newAnswer
     })
+})
+
+export const deleteAnswer = asyncHandler(async (req, res) => {
+    const paramsId = req.params.id;
+
+    const answerData = await Answer.findById(paramsId);
+
+    checkPermission(req.user, answerData.user, res);
+
+    await Answer.findByIdAndDelete(paramsId);
+
+    res.status(200).json({
+        message: "delete answer success"
+    })
+
 })
