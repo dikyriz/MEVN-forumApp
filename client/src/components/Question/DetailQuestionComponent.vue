@@ -1,9 +1,10 @@
 <template>
   <div class="grid px-4 gap-4 bg-blue-50">
-    <div class="col-2">
-      <div class="flex align-items-center gap-2">
-        <Button icon="pi pi-thumbs-up-fill" rounded text></Button>
-        <span>{{ props.data.countVote }}</span>
+    <div class="col-1">
+      <div class="flex justify-content-center align-content-center flex-wrap gap-3" style="min-height: 100%;">
+        <Button v-if="votingData && authStore && votingData.user === authStore.currentUser._id" icon="pi pi-thumbs-up-fill" size="large" rounded @click="handleDislike(props.data._id)"></Button>
+        <Button v-else icon="pi pi-thumbs-up" size="large" rounded @click="handleLike(props.data._id)"></Button>
+        <span class="text-2xl font-bold">{{ props.data.countVote }}</span>
       </div>
     </div>
     <div class="col">
@@ -41,6 +42,49 @@
 import Panel from "primevue/panel";
 import Avatar from "primevue/avatar";
 import Chip from "primevue/chip";
+import {useAuthStore} from "@/stores/authStores.js";
+import customFetch from "@/api.js";
+import {ref, onMounted} from "vue";
+
+const votingData = ref("");
+
+const authStore = useAuthStore();
+
+const detailVote = async () => {
+  try {
+    const {data} = await customFetch.get(`/voting/${props.data._id}`);
+    votingData.value = data.data;
+    console.log(data);
+  } catch (e) {
+    console.info(e);
+  }
+}
+
+const emit = defineEmits(['reload']);
+
+const handleDislike = async (paramsId) => {
+  try {
+    await customFetch.delete(`/voting/${paramsId}`);
+    emit("reload");
+    detailVote();
+  } catch (e) {
+    alert(e.response.data.message);
+  }
+}
+
+const handleLike = async (paramsId) => {
+  try {
+    await customFetch.post(`/voting/${paramsId}`);
+    emit("reload");
+    detailVote();
+  } catch (e) {
+    alert(e.response.data.message);
+  }
+}
+
+onMounted(() => {
+  detailVote();
+})
 
 const dateFormat = (dateinput) => {
   const newDate = new Date(dateinput).toLocaleString();

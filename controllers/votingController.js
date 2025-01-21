@@ -48,3 +48,12 @@ export const dislikeQuestion = asyncHandler(async (req, res) => {
     })
 
 })
+
+export const getVoting = asyncHandler(async (req, res) => {
+    const voting = await Voting.findOne({question:  req.params.idQuestion})
+
+    return res.status(200).json({
+        message: "get detail voting",
+        data: voting,
+    })
+})

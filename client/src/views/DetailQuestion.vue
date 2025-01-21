@@ -1,5 +1,5 @@
 <template>
-  <DetailQuestionComponent v-if="questionData" :data="questionData" />
+  <DetailQuestionComponent v-if="questionData" :data="questionData" @reload="DetailQuestion()"/>
   <LoadingSpinner v-else />
   <Divider/>
   <h1 class="text-2xl text-primary">List Answers</h1>
