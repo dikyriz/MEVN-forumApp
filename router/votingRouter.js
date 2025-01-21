@@ -1,0 +1,15 @@
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import {dislikeQuestion, likeQuestion} from "../controllers/votingController.js"
+
+const router = express.Router();
+
+//create document
+// post /api/v1/voting/:idQuestion
+router.post("/:idQuestion", authMiddleware, likeQuestion);
+
+//delete document
+//delete /api/v1/voting/:idQuestion
+router.delete("/:idQuestion", authMiddleware, dislikeQuestion);
+
+export default router;
