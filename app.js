@@ -8,6 +8,7 @@ import authRouter from "./router/authRouter.js";
 import questionRouter from "./router/questionRouter.js";
 import answerRouter from "./router/answerRouter.js";
 import votingRouter from "./router/votingRouter.js";
+import reportRouter from "./router/reportRouter.js";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { errorHandler, notFound } from "./middleware/ErrorHandler.js";
@@ -31,6 +32,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/answer", answerRouter);
 app.use("/api/v1/voting", votingRouter);
+app.use("/api/v1/report/question", reportRouter);
 
 app.use(notFound);
 app.use(errorHandler);
