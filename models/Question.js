@@ -40,6 +40,12 @@ questionSchema.virtual("listAnswer", {
     justOne: false
 })
 
+questionSchema.pre("deleteOne", {document:true, query:false}, async function () {
+    await this.model("Report").deleteMany({question: this._id});
+    await this.model("Voting").deleteMany({question: this._id});
+    await this.model("Answer").deleteMany({question: this._id});
+})
+
 const Question = mongoose.model("Question", questionSchema);
 
 export default Question;

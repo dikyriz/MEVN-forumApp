@@ -117,7 +117,7 @@ export const DeleteQuestion = asyncHandler(async (req, res) => {
 
   checkPermission(req.user, idQuestion.userId, res);
 
-  await Question.findByIdAndDelete(idParams);
+  await idQuestion.deleteOne();
 
   return res.status(200).json({
     message: "delete success",

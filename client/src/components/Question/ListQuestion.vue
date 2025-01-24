@@ -24,11 +24,30 @@
           }}</span>
         </div>
       </template>
-      <template #icons v-if="authStore.currentUser && authStore.currentUser._id == props.data.userId._id">
-        <button class="p-panel-header-icon p-link mr-2" @click="toggle">
-          <span class="pi pi-cog"></span>
-        </button>
-        <Menu ref="menu" id="config_menu" :model="items" popup />
+      <template #icons>
+        <div>
+          <Button v-if="authStore.currentUser" class="p-panel-header-icon p-link mr-2" @click="dialogReport(props.data.title, props.data._id)">
+            <span class="pi pi-flag"></span>
+          </Button>
+          <Button v-if="authStore.currentUser && authStore.currentUser._id == props.data.userId._id" class="p-panel-header-icon p-link mr-2" @click="toggle">
+            <span class="pi pi-cog"></span>
+          </Button>
+          <Menu ref="menu" id="config_menu" :model="items" popup />
+        </div>
+        <Dialog v-model:visible="openReport" modal header="Report Question" :style="{ width: '40%' }">
+          <span class="p-text-primary block mb-5">{{titleReport}}</span>
+          <form @submit.prevent="handleReport">
+              <div class="flex flex-column gap-3">
+                <div v-for="report in reports" :key="report.key" class="flex align-items-center">
+                  <RadioButton v-model="selectedReport" :inputId="report.key" name="dynamic" :value="report.name" />
+                  <label :for="report.key" class="ml-2">{{ report.name }}</label>
+                </div>
+              </div>
+            <div class="flex gap-2">
+              <Button type="submit" class="w-full my-5 gap-2" severity="danger" label="Report"></Button>
+            </div>
+          </form>
+        </Dialog>
       </template>
       <RouterLink
         :to="{ name: 'DetailQuestion', params: { id: props.data._id } }"
@@ -64,18 +83,48 @@ import Menu from "primevue/menu";
 import Dialog from "primevue/dialog";
 import FormQuestion from "./FormQuestion.vue";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import {useAuthStore} from "@/stores/authStores.js";
 import customFetch from "@/api.js";
+import RadioButton from "primevue/radiobutton";
 
 
 const dialog = ref(false);
 const dataQuestion = ref(null);
-const router = useRouter();
 const menu = ref(null);
+const openReport = ref(false);
+
+const titleReport = ref("");
+const idReport = ref("");
+const selectedReport = ref("spam");
+const reports = ref([
+  {name: "Spam", key: "A"},
+  {name: "Pornografi", key: "B"},
+  {name: "Tidak Layak", key: "C"}
+])
+
 const toggle = (event) => {
   menu.value.toggle(event);
 };
+
+const dialogReport = (title, id) => {
+  titleReport.value = title;
+  idReport.value = id;
+  openReport.value = true;
+}
+
+const handleReport = async () => {
+  try {
+    await customFetch.post(`/report/question/${idReport.value}`, {
+      report: selectedReport.value
+    });
+    openReport.value = false;
+    alert("report success");
+    emit("reload");
+  } catch (e) {
+    console.info(e.response.data.message);
+  }
+}
+
 
 const emit = defineEmits(["reload"]);
 const authStore = useAuthStore();
@@ -102,17 +151,6 @@ const items = ref([
       await customFetch.delete(`question/${props.data._id}`);
       alert("Delete Success");
       emit("reload");
-    },
-  },
-
-  {
-    separator: true,
-  },
-  {
-    label: "Report",
-    icon: "pi pi-flag",
-    command: () => {
-      console.log("report");
     },
   },
 ]);
